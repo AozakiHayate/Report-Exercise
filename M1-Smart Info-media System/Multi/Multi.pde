@@ -4,9 +4,9 @@
 //　+季節機能+増殖機能
 
 int Length = 400; //空間管理配列の大きさ
-int Max_Human = 100; //シミュレータに登場させる人間の数
+int Max_Human = 1000; //シミュレータに登場させる人間の数
 
-int Ini = 20; //初期化人間数
+int Ini = 20; //現在の人間数
 int Dead = 0;//死ぬ人間
 int Alive = Ini;//生きる人間
 
@@ -26,14 +26,14 @@ void setup() {
   background(0);
   frameRate(60);
   
-  Season = int(random(4));  // initialize season
+  Season = 1;  // 春からスタート
   for(int i=0; i < Ini; i++){
      int k1 = 1;
      int k2 = int(random(width));
      int k3 = int(random(height-150));
      int k4 = int(random(5));
      int k5 = int(random(5));
-     int k6 = 400+int(random(200));
+     int k6 = 500 +int(random(200)); //初期化人間のhp 500-700
      Human[i] = new Human_class(k1,k2,k3,k4,k5,k6);
   }
   
@@ -47,8 +47,8 @@ void setup() {
 void draw() {
  
  makeground();
- season_division();
- Food = (30*(Season+1))/10;//   food rate changes
+ season_change();
+ Food = (300*(Season))/10 + 10;//    食物の生成率
  for(int j=0; j < Ini; j++){
   
    if(Human[j].type == 1){
@@ -86,7 +86,7 @@ void draw() {
     }
   }
   
-  if(int(random(1000)) < 20 * (Season + 1)){  // variation the probility according to the season
+  if(int(random(1000)) < Food){   //季節により、食物生成率の変化
     MAP[int(random(Length))][int(random(Length))] = 2;
   }
   
@@ -113,12 +113,12 @@ void draw() {
 class Human_class
 {
 
-  int xpos; 
-  int ypos; 
-  int type; 
-  int direction; 
-  int timer; 
-  int hp;
+  int xpos; //x座標
+  int ypos; //y座標
+  int type; //人間の状態
+  int direction; //人間の動作方向
+  int timer; //体内時計
+  int hp;//体力
     
   Human_class(int c, int xp, int yp, int dirt, int t, int h) {
     xpos = xp;
@@ -135,10 +135,6 @@ class Human_class
  
     smooth();
     noStroke();
-    
-    
-    
-    
     fill(100,255,255);
     
     if(hp < 100){
@@ -194,21 +190,20 @@ class Human_class
 
 void Text() {
   fill(255);
-  textSize(20);
-  text("Alive="+Alive,50,450);
-  text("Dead="+Dead,50,510);
-  text("Food Rate="+Food+"%",230,510);
+  textSize(30);
+  text("Alive:"+Alive,130,440);
+  text("Dead:"+Dead,125,480);
   if(Season == 0) {
-    text("Season=Winter",230,450);
+    text("Season:Winter",98,520);
   }
   else if(Season == 1) {
-    text("Season=Spring",230,450);
+    text("Season:Spring",98,520);
   }
   else if(Season == 2) {
-    text("Season=Summer",230,450);
+    text("Season:Summer",98,520);
   }
   else if(Season == 3) {
-    text("Season=Autumn",230,450);
+    text("Season:Autumn",98,520);
   }
 }
 
@@ -330,11 +325,27 @@ void drive () {
 
 
 void makeground(){
-  fill(Season * 60,200,100);
-  rect(0,0,width,height);  
+  if(Season == 0) {
+   fill( 0,5,255);
+   rect(0,0,width,height);  
+  }
+  else if(Season == 1) {
+   fill( 50,200,150);
+   rect(0,0,width,height);  
+  }
+  else if(Season == 2) {
+   fill( 80,200,100);
+   rect(0,0,width,height);  
+  }
+  else if(Season == 3) {
+   fill( 20,250,80);
+   rect(0,0,width,height);  
+  }
 }
 
-void season_division(){
+
+
+void season_change(){
   Time ++;
   if((Time == 300) && (Season < 3)){
     Season++;
@@ -343,14 +354,16 @@ void season_division(){
     Season = 0;
   }
   
-  int temp_human = Ini;
+  int tmp = Ini;
   
-  for(int i = 0; i < temp_human; i++){
-    if(Time == 300 && Ini <= Max_Human-1 && Human[i].hp >= 800){
+  for(int i = 0; i < tmp; i++){
+    if(  Ini <= Max_Human-1 && Human[i].hp >= 800){
       Ini++;
       Alive++;
-      Human[Ini-1] = new Human_class(1,int(random(width)),int(random(height-150)),
-                                      int(random(5)),int(random(5)),1000 + int(random(200)));
+      Human[i].hp = Human[i].hp - 100;
+      Human[Ini-1] = new Human_class(1, Human[i].xpos,Human[i].ypos,
+                                      int(random(5)),int(random(5)),200 + int(random(200)));
+                                      //担当する人間の位置から新たな人間増殖する
     }
   }
   if(Time > 300){
