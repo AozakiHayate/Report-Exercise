@@ -1,4 +1,4 @@
 # Report-Exercise
 Master's Degree  
 
-M1
+M1-スマートインフォメディアシステム
